@@ -1,0 +1,288 @@
+<!DOCTYPE html><html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus Catálogo</title><style>
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: #f4f6f8;
+        color: #222;
+    }
+
+    header {
+        background: #111827;
+        color: white;
+        padding: 22px 16px;
+        text-align: center;
+    }
+
+    header h1 {
+        margin: 0;
+        font-size: 26px;
+    }
+
+    header p {
+        margin: 8px 0 0;
+        opacity: 0.8;
+    }
+
+    main {
+        width: min(1100px, 94%);
+        margin: 25px auto;
+    }
+
+    #status {
+        text-align: center;
+        margin-bottom: 20px;
+        color: #666;
+    }
+
+    #catalogo {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+        gap: 20px;
+    }
+
+    .anuncio {
+        background: white;
+        border-radius: 14px;
+        overflow: hidden;
+        box-shadow: 0 3px 12px rgba(0,0,0,0.10);
+    }
+
+    .anuncio img {
+        width: 100%;
+        height: 210px;
+        object-fit: cover;
+        display: block;
+    }
+
+    .conteudo {
+        padding: 16px;
+    }
+
+    .conteudo h2 {
+        margin: 0 0 10px;
+        font-size: 20px;
+    }
+
+    .preco {
+        font-size: 22px;
+        font-weight: bold;
+        margin: 10px 0;
+    }
+
+    .campo {
+        margin: 7px 0;
+    }
+
+    .campo strong {
+        display: inline-block;
+    }
+
+    .descricao {
+        margin-top: 12px;
+        color: #555;
+        line-height: 1.5;
+    }
+
+    video {
+        width: 100%;
+        max-height: 300px;
+        display: block;
+        background: #000;
+    }
+
+    .sem-anuncios {
+        grid-column: 1 / -1;
+        text-align: center;
+        padding: 40px 20px;
+        background: white;
+        border-radius: 14px;
+    }
+</style>
+
+</head><body><header>
+    <h1>🛍️ NEXUS CATÁLOGO</h1>
+    <p>Produtos e anúncios disponíveis</p>
+</header><main><div id="status">
+    Carregando anúncios...
+</div>
+
+<section id="catalogo"></section>
+
+</main><script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+import {
+    getDatabase,
+    ref,
+    onValue
+} from "https://www.gstatic.com/firebasejs/12.1.0/firebase-database.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyAS2NIZzWujvEFCvznq7RRrpai3lfAr1YU",
+    authDomain: "ia-termux.firebaseapp.com",
+    databaseURL: "https://ia-termux-default-rtdb.firebaseio.com",
+    projectId: "ia-termux",
+    storageBucket: "ia-termux.firebasestorage.app",
+    messagingSenderId: "563930488672",
+    appId: "1:563930488672:web:dc73144be15c2a3a850805"
+};
+
+const app = initializeApp(firebaseConfig);
+const database = getDatabase(app);
+
+const anunciosRef = ref(database, "nexus_catalogo/anuncios");
+
+const catalogo = document.getElementById("catalogo");
+const status = document.getElementById("status");
+
+onValue(
+    anunciosRef,
+    (snapshot) => {
+
+        catalogo.innerHTML = "";
+
+        const dados = snapshot.val();
+
+        if (!dados) {
+            status.textContent = "Nenhum anúncio disponível.";
+            catalogo.innerHTML = `
+                <div class="sem-anuncios">
+                    Nenhum anúncio encontrado.
+                </div>
+            `;
+            return;
+        }
+
+        const anuncios = Object.values(dados);
+
+        status.textContent =
+            `${anuncios.length} anúncio(s) disponível(is)`;
+
+        anuncios.reverse().forEach((anuncio) => {
+
+            const card = document.createElement("article");
+            card.className = "anuncio";
+
+            let foto = "";
+
+            if (Array.isArray(anuncio.fotos) && anuncio.fotos.length > 0) {
+                foto = anuncio.fotos[0];
+            }
+
+            if (!foto && typeof anuncio.fotos === "object" && anuncio.fotos) {
+                foto = Object.values(anuncio.fotos)[0];
+            }
+
+            let imagem = "";
+
+            if (foto) {
+                imagem = `
+                    <img
+                        src="${foto}"
+                        alt="${anuncio.nome || "Produto"}"
+                        loading="lazy"
+                    >
+                `;
+            }
+
+            let video = "";
+
+            if (anuncio.video) {
+                video = `
+                    <video controls playsinline>
+                        <source src="${anuncio.video}">
+                        Seu navegador não suporta vídeo.
+                    </video>
+                `;
+            }
+
+            card.innerHTML = `
+                ${imagem}
+                ${video}
+
+                <div class="conteudo">
+
+                    <h2>
+                        ${anuncio.nome || "Anúncio"}
+                    </h2>
+
+                    ${
+                        anuncio.preco
+                        ? `<div class="preco">R$ ${anuncio.preco}</div>`
+                        : ""
+                    }
+
+                    ${
+                        anuncio.condicao
+                        ? `<div class="campo"><strong>Condição:</strong> ${anuncio.condicao}</div>`
+                        : ""
+                    }
+
+                    ${
+                        anuncio.vendedor
+                        ? `<div class="campo"><strong>Vendedor:</strong> ${anuncio.vendedor}</div>`
+                        : ""
+                    }
+
+                    ${
+                        anuncio.contato
+                        ? `<div class="campo"><strong>Contato:</strong> ${anuncio.contato}</div>`
+                        : ""
+                    }
+
+                    ${
+                        anuncio.endereco
+                        ? `<div class="campo"><strong>Retirada:</strong> ${anuncio.endereco}</div>`
+                        : ""
+                    }
+
+                    ${
+                        anuncio.taxa
+                        ? `<div class="campo"><strong>Entrega:</strong> ${anuncio.taxa}</div>`
+                        : ""
+                    }
+
+                    ${
+                        anuncio.pagamento
+                        ? `<div class="campo"><strong>Pagamento:</strong> ${anuncio.pagamento}</div>`
+                        : ""
+                    }
+
+                    ${
+                        anuncio.descricao
+                        ? `<div class="descricao">${anuncio.descricao}</div>`
+                        : ""
+                    }
+
+                </div>
+            `;
+
+            catalogo.appendChild(card);
+        });
+
+    },
+    (erro) => {
+
+        console.error(erro);
+
+        status.textContent =
+            "Não foi possível carregar os anúncios.";
+
+        catalogo.innerHTML = `
+            <div class="sem-anuncios">
+                Erro ao acessar o catálogo.
+            </div>
+        `;
+    }
+);
+
+</script></body>
+</html>
