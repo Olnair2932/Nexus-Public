@@ -1,122 +1,337 @@
-<!DOCTYPE html><html lang="pt-BR">
+<!DOCTYPE html>
+<html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nexus Catálogo</title><style>
-    * {
-        box-sizing: border-box;
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#111827">
+<title>Nexus Catálogo Premium</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+:root {
+    --bg: #f5f7fb;
+    --surface: #ffffff;
+    --surface-2: #eef1f6;
+    --text: #172033;
+    --muted: #6b7280;
+    --border: #e5e7eb;
+    --accent: #111827;
+    --accent-2: #374151;
+    --shadow: 0 12px 35px rgba(15, 23, 42, .10);
+}
+
+body.dark {
+    --bg: #0b1020;
+    --surface: #151b2d;
+    --surface-2: #20283b;
+    --text: #f8fafc;
+    --muted: #aab3c5;
+    --border: #30394d;
+    --accent: #f8fafc;
+    --accent-2: #dbe2ef;
+    --shadow: 0 12px 35px rgba(0, 0, 0, .30);
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    margin: 0;
+    font-family: Inter, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    transition: background .25s, color .25s;
+}
+
+button {
+    font: inherit;
+}
+
+header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    box-shadow: 0 4px 20px rgba(0,0,0,.06);
+}
+
+.topo {
+    width: min(1200px, 94%);
+    margin: auto;
+    padding: 16px 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+}
+
+.marca {
+    min-width: 0;
+}
+
+.marca h1 {
+    margin: 0;
+    font-size: 22px;
+    letter-spacing: -.5px;
+}
+
+.marca p {
+    margin: 4px 0 0;
+    color: var(--muted);
+    font-size: 13px;
+}
+
+.acoes {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+.acao {
+    border: 1px solid var(--border);
+    background: var(--surface-2);
+    color: var(--text);
+    border-radius: 10px;
+    min-width: 42px;
+    height: 42px;
+    padding: 0 12px;
+    cursor: pointer;
+    transition: transform .15s, background .2s;
+}
+
+.acao:hover {
+    transform: translateY(-1px);
+}
+
+.acao:active {
+    transform: scale(.96);
+}
+
+main {
+    width: min(1200px, 94%);
+    margin: 28px auto 90px;
+}
+
+.hero {
+    padding: 30px 0 25px;
+}
+
+.hero h2 {
+    margin: 0;
+    font-size: clamp(28px, 5vw, 44px);
+    letter-spacing: -1.5px;
+}
+
+.hero p {
+    margin: 10px 0 0;
+    color: var(--muted);
+    font-size: 16px;
+}
+
+#status {
+    text-align: center;
+    margin: 15px 0 25px;
+    color: var(--muted);
+}
+
+#catalogo {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 22px;
+}
+
+#catalogo.lista {
+    grid-template-columns: 1fr;
+}
+
+.anuncio {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    transition: transform .2s, box-shadow .2s;
+}
+
+.anuncio:hover {
+    transform: translateY(-3px);
+}
+
+.lista .anuncio {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+}
+
+.midia {
+    position: relative;
+    background: var(--surface-2);
+    min-height: 220px;
+}
+
+.midia img,
+.midia video {
+    width: 100%;
+    height: 100%;
+    min-height: 220px;
+    max-height: 320px;
+    object-fit: cover;
+    display: block;
+}
+
+.conteudo {
+    padding: 20px;
+}
+
+.conteudo h2 {
+    margin: 0 0 8px;
+    font-size: 21px;
+}
+
+.preco {
+    font-size: 25px;
+    font-weight: 800;
+    margin: 12px 0 16px;
+}
+
+.campo {
+    margin: 7px 0;
+    color: var(--muted);
+    line-height: 1.4;
+}
+
+.campo strong {
+    color: var(--text);
+}
+
+.descricao {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid var(--border);
+    line-height: 1.5;
+}
+
+#voltarTopo {
+    position: fixed;
+    right: 18px;
+    bottom: 18px;
+    z-index: 200;
+    width: 48px;
+    height: 48px;
+    border: 0;
+    border-radius: 50%;
+    background: var(--accent);
+    color: var(--bg);
+    cursor: pointer;
+    box-shadow: var(--shadow);
+    display: none;
+}
+
+.vazio {
+    text-align: center;
+    padding: 50px 20px;
+    color: var(--muted);
+}
+
+footer {
+    text-align: center;
+    color: var(--muted);
+    padding: 30px 15px;
+    font-size: 13px;
+}
+
+@media (max-width: 850px) {
+    #catalogo {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
-    body {
-        margin: 0;
-        font-family: Arial, sans-serif;
-        background: #f4f6f8;
-        color: #222;
+    .lista .anuncio {
+        grid-template-columns: 220px 1fr;
+    }
+}
+
+@media (max-width: 600px) {
+    .topo {
+        align-items: flex-start;
     }
 
-    header {
-        background: #111827;
-        color: white;
-        padding: 22px 16px;
-        text-align: center;
+    .marca h1 {
+        font-size: 19px;
     }
 
-    header h1 {
-        margin: 0;
-        font-size: 26px;
+    .marca p {
+        font-size: 11px;
     }
 
-    header p {
-        margin: 8px 0 0;
-        opacity: 0.8;
+    .acao {
+        width: 40px;
+        min-width: 40px;
+        padding: 0;
     }
 
     main {
-        width: min(1100px, 94%);
-        margin: 25px auto;
+        width: 92%;
+        margin-top: 15px;
     }
 
-    #status {
-        text-align: center;
-        margin-bottom: 20px;
-        color: #666;
+    .hero {
+        padding: 20px 0;
     }
 
-    #catalogo {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
-        gap: 20px;
+    #catalogo,
+    #catalogo.lista {
+        grid-template-columns: 1fr;
     }
 
-    .anuncio {
-        background: white;
-        border-radius: 14px;
-        overflow: hidden;
-        box-shadow: 0 3px 12px rgba(0,0,0,0.10);
-    }
-
-    .anuncio img {
-        width: 100%;
-        height: 210px;
-        object-fit: cover;
+    .lista .anuncio {
         display: block;
     }
-
-    .conteudo {
-        padding: 16px;
-    }
-
-    .conteudo h2 {
-        margin: 0 0 10px;
-        font-size: 20px;
-    }
-
-    .preco {
-        font-size: 22px;
-        font-weight: bold;
-        margin: 10px 0;
-    }
-
-    .campo {
-        margin: 7px 0;
-    }
-
-    .campo strong {
-        display: inline-block;
-    }
-
-    .descricao {
-        margin-top: 12px;
-        color: #555;
-        line-height: 1.5;
-    }
-
-    video {
-        width: 100%;
-        max-height: 300px;
-        display: block;
-        background: #000;
-    }
-
-    .sem-anuncios {
-        grid-column: 1 / -1;
-        text-align: center;
-        padding: 40px 20px;
-        background: white;
-        border-radius: 14px;
-    }
+}
 </style>
+</head>
 
-</head><body><header>
-    <h1>🛍️ NEXUS CATÁLOGO</h1>
-    <p>Produtos e anúncios disponíveis</p>
-</header><main><div id="status">
-    Carregando anúncios...
-</div>
+<body>
 
-<section id="catalogo"></section>
+<header>
+    <div class="topo">
+        <div class="marca">
+            <h1>🛍️ NEXUS CATÁLOGO</h1>
+            <p>Uma vitrine para encontrar o que você procura</p>
+        </div>
 
-</main><script type="module">
+        <div class="acoes">
+            <button class="acao" id="btnVoltar" title="Voltar">←</button>
+            <button class="acao" id="btnFechar" title="Fechar">✕</button>
+            <button class="acao" id="btnTema" title="Modo claro/escuro">🌙</button>
+            <button class="acao" id="btnGrade" title="Modo grade">▦</button>
+            <button class="acao" id="btnLista" title="Modo lista">☰</button>
+        </div>
+    </div>
+</header>
+
+<main>
+    <section class="hero">
+        <h2>Produtos e anúncios</h2>
+        <p>Explore nossa vitrine e encontre seu próximo produto.</p>
+    </section>
+
+    <div id="status">Carregando anúncios...</div>
+
+    <section id="catalogo"></section>
+</main>
+
+<button id="voltarTopo" title="Voltar ao topo">↑</button>
+
+<footer>
+    Nexus Catálogo Premium
+</footer>
+
+<script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
 import {
@@ -138,151 +353,204 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 
-const anunciosRef = ref(database, "nexus_catalogo/anuncios");
-
 const catalogo = document.getElementById("catalogo");
 const status = document.getElementById("status");
 
-onValue(
-    anunciosRef,
-    (snapshot) => {
+function formatarPreco(valor) {
+    if (valor === undefined || valor === null || valor === "") {
+        return "";
+    }
 
-        catalogo.innerHTML = "";
+    const numero = Number(
+        String(valor)
+            .replace("R$", "")
+            .replace(/\./g, "")
+            .replace(",", ".")
+            .trim()
+    );
 
-        const dados = snapshot.val();
-
-        if (!dados) {
-            status.textContent = "Nenhum anúncio disponível.";
-            catalogo.innerHTML = `
-                <div class="sem-anuncios">
-                    Nenhum anúncio encontrado.
-                </div>
-            `;
-            return;
-        }
-
-        const anuncios = Object.values(dados);
-
-        status.textContent =
-            `${anuncios.length} anúncio(s) disponível(is)`;
-
-        anuncios.reverse().forEach((anuncio) => {
-
-            const card = document.createElement("article");
-            card.className = "anuncio";
-
-            let foto = "";
-
-            if (Array.isArray(anuncio.fotos) && anuncio.fotos.length > 0) {
-                foto = anuncio.fotos[0];
-            }
-
-            if (!foto && typeof anuncio.fotos === "object" && anuncio.fotos) {
-                foto = Object.values(anuncio.fotos)[0];
-            }
-
-            let imagem = "";
-
-            if (foto) {
-                imagem = `
-                    <img
-                        src="${foto}"
-                        alt="${anuncio.nome || "Produto"}"
-                        loading="lazy"
-                    >
-                `;
-            }
-
-            let video = "";
-
-            if (anuncio.video) {
-                video = `
-                    <video controls playsinline>
-                        <source src="${anuncio.video}">
-                        Seu navegador não suporta vídeo.
-                    </video>
-                `;
-            }
-
-            card.innerHTML = `
-                ${imagem}
-                ${video}
-
-                <div class="conteudo">
-
-                    <h2>
-                        ${anuncio.nome || "Anúncio"}
-                    </h2>
-
-                    ${
-                        anuncio.preco
-                        ? `<div class="preco">R$ ${anuncio.preco}</div>`
-                        : ""
-                    }
-
-                    ${
-                        anuncio.condicao
-                        ? `<div class="campo"><strong>Condição:</strong> ${anuncio.condicao}</div>`
-                        : ""
-                    }
-
-                    ${
-                        anuncio.vendedor
-                        ? `<div class="campo"><strong>Vendedor:</strong> ${anuncio.vendedor}</div>`
-                        : ""
-                    }
-
-                    ${
-                        anuncio.contato
-                        ? `<div class="campo"><strong>Contato:</strong> ${anuncio.contato}</div>`
-                        : ""
-                    }
-
-                    ${
-                        anuncio.endereco
-                        ? `<div class="campo"><strong>Retirada:</strong> ${anuncio.endereco}</div>`
-                        : ""
-                    }
-
-                    ${
-                        anuncio.taxa
-                        ? `<div class="campo"><strong>Entrega:</strong> ${anuncio.taxa}</div>`
-                        : ""
-                    }
-
-                    ${
-                        anuncio.pagamento
-                        ? `<div class="campo"><strong>Pagamento:</strong> ${anuncio.pagamento}</div>`
-                        : ""
-                    }
-
-                    ${
-                        anuncio.descricao
-                        ? `<div class="descricao">${anuncio.descricao}</div>`
-                        : ""
-                    }
-
-                </div>
-            `;
-
-            catalogo.appendChild(card);
+    if (!Number.isNaN(numero)) {
+        return numero.toLocaleString("pt-BR", {
+            style: "currency",
+            currency: "BRL"
         });
+    }
 
-    },
-    (erro) => {
+    return String(valor);
+}
 
-        console.error(erro);
+function obterFoto(anuncio) {
+    if (Array.isArray(anuncio.fotos) && anuncio.fotos.length) {
+        return anuncio.fotos[0];
+    }
 
-        status.textContent =
-            "Não foi possível carregar os anúncios.";
+    if (anuncio.fotos && typeof anuncio.fotos === "object") {
+        const valores = Object.values(anuncio.fotos);
+        if (valores.length) return valores[0];
+    }
 
-        catalogo.innerHTML = `
-            <div class="sem-anuncios">
-                Erro ao acessar o catálogo.
+    return anuncio.imagem || anuncio.image || "";
+}
+
+function criarMidia(anuncio) {
+    const foto = obterFoto(anuncio);
+    const video = anuncio.video || anuncio.video_url || "";
+
+    if (video) {
+        return `
+            <div class="midia">
+                <video controls playsinline preload="metadata">
+                    <source src="${video}">
+                    Seu navegador não suporta vídeo.
+                </video>
             </div>
         `;
     }
-);
 
-</script></body>
+    if (foto) {
+        return `
+            <div class="midia">
+                <img src="${foto}" alt="${anuncio.nome || "Produto"}" loading="lazy">
+            </div>
+        `;
+    }
+
+    return `
+        <div class="midia">
+            <div style="height:220px;display:flex;align-items:center;justify-content:center;color:var(--muted);">
+                Sem imagem
+            </div>
+        </div>
+    `;
+}
+
+function criarAnuncio(anuncio) {
+    return `
+        <article class="anuncio">
+            ${criarMidia(anuncio)}
+
+            <div class="conteudo">
+                <h2>${anuncio.nome || "Produto"}</h2>
+
+                <div class="preco">
+                    ${formatarPreco(anuncio.preco)}
+                </div>
+
+                ${anuncio.condicao ? `<div class="campo"><strong>Condição:</strong> ${anuncio.condicao}</div>` : ""}
+                ${anuncio.vendedor ? `<div class="campo"><strong>Vendedor:</strong> ${anuncio.vendedor}</div>` : ""}
+                ${anuncio.contato ? `<div class="campo"><strong>Contato:</strong> ${anuncio.contato}</div>` : ""}
+                ${anuncio.endereco ? `<div class="campo"><strong>Retirada:</strong> ${anuncio.endereco}</div>` : ""}
+                ${anuncio.taxa ? `<div class="campo"><strong>Entrega:</strong> ${anuncio.taxa}</div>` : ""}
+                ${anuncio.pagamento ? `<div class="campo"><strong>Pagamento:</strong> ${anuncio.pagamento}</div>` : ""}
+
+                ${anuncio.descricao ? `<div class="descricao">${anuncio.descricao}</div>` : ""}
+            </div>
+        </article>
+    `;
+}
+
+const anunciosRef = ref(database, "nexus_catalogo/anuncios");
+
+onValue(anunciosRef, (snapshot) => {
+    const dados = snapshot.val() || {};
+    const anuncios = Object.values(dados);
+
+    catalogo.innerHTML = "";
+
+    if (!anuncios.length) {
+        status.textContent = "Nenhum anúncio disponível no momento.";
+        catalogo.innerHTML = `<div class="vazio">A vitrine está vazia.</div>`;
+        return;
+    }
+
+    status.textContent =
+        `${anuncios.length} anúncio${anuncios.length === 1 ? "" : "s"} disponível${anuncios.length === 1 ? "" : "is"}`;
+
+    catalogo.innerHTML = anuncios.map(criarAnuncio).join("");
+}, (erro) => {
+    console.error(erro);
+    status.textContent = "Não foi possível carregar os anúncios.";
+});
+
+function aplicarTema() {
+    const tema = localStorage.getItem("nexus-tema");
+
+    if (tema === "dark") {
+        document.body.classList.add("dark");
+        document.getElementById("btnTema").textContent = "☀️";
+    } else {
+        document.body.classList.remove("dark");
+        document.getElementById("btnTema").textContent = "🌙";
+    }
+}
+
+document.getElementById("btnTema").addEventListener("click", () => {
+    const escuro = !document.body.classList.contains("dark");
+
+    document.body.classList.toggle("dark", escuro);
+    localStorage.setItem("nexus-tema", escuro ? "dark" : "light");
+
+    document.getElementById("btnTema").textContent = escuro ? "☀️" : "🌙";
+});
+
+document.getElementById("btnGrade").addEventListener("click", () => {
+    catalogo.classList.remove("lista");
+    localStorage.setItem("nexus-layout", "grade");
+});
+
+document.getElementById("btnLista").addEventListener("click", () => {
+    catalogo.classList.add("lista");
+    localStorage.setItem("nexus-layout", "lista");
+});
+
+document.getElementById("btnVoltar").addEventListener("click", () => {
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
+});
+
+document.getElementById("btnFechar").addEventListener("click", () => {
+    window.close();
+
+    setTimeout(() => {
+        window.location.href = "about:blank";
+    }, 150);
+});
+
+window.addEventListener("popstate", () => {
+    history.pushState(null, "", location.href);
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
+});
+
+history.pushState(null, "", location.href);
+
+const layoutSalvo = localStorage.getItem("nexus-layout");
+
+if (layoutSalvo === "lista") {
+    catalogo.classList.add("lista");
+}
+
+aplicarTema();
+
+window.addEventListener("scroll", () => {
+    const botao = document.getElementById("voltarTopo");
+
+    botao.style.display =
+        window.scrollY > 350 ? "block" : "none";
+});
+
+document.getElementById("voltarTopo").addEventListener("click", () => {
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
+});
+
+</script>
+
+</body>
 </html>
