@@ -496,13 +496,13 @@ function criarAnuncio(anuncio) {
                 ${anuncio.descricao ? `<div class="descricao">${anuncio.descricao}</div>` : ""}
 
                 <div class="btn-anuncio-acoes">
-                    <button class="btn-share" onclick="compartilharAnuncioPorId(encodeURIComponent(anuncio.id || ""))">
+                    <button class="btn-share" onclick='compartilharAnuncioPorId(encodeURIComponent(${JSON.stringify(anuncio.id || "")}))'>
                         📤 Compartilhar
                     </button>
-                    <button class="btn-wa" onclick="abrirWhatsAppPorId(encodeURIComponent(anuncio.id || ""))">
+                    <button class="btn-wa" onclick='abrirWhatsAppPorId(encodeURIComponent(${JSON.stringify(anuncio.id || "")}))'>
                         💚 WhatsApp
                     </button>
-                    <button class="btn-ai" onclick="abrirMetaAIPorId(encodeURIComponent(anuncio.id || ""))">
+                    <button class="btn-ai" onclick='abrirMetaAIPorId(encodeURIComponent(${JSON.stringify(anuncio.id || "")}))'>
                         🤖 Meta AI
                     </button>
                 </div>
