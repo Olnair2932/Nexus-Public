@@ -172,6 +172,13 @@ main {
     position: relative;
     background: var(--surface-2);
     min-height: 220px;
+    margin-bottom: 14px;
+    border-radius: 14px;
+    overflow: hidden;
+}
+
+.midia-imagem img {
+    cursor: zoom-in;
 }
 
 .midia img,
@@ -292,6 +299,46 @@ footer {
         display: block;
     }
 }
+
+.btn-anuncio-acoes {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 18px;
+}
+
+.btn-anuncio-acoes button {
+    flex: 1;
+    min-width: 140px;
+    padding: 12px 16px;
+    border: 0;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.btn-anuncio-acoes button:hover {
+    transform: translateY(-2px);
+    opacity: 0.9;
+}
+
+.btn-wa {
+    background: #25D366;
+    color: #fff;
+}
+
+.btn-ai {
+    background: #111827;
+    color: #fff;
+}
+
+body.dark .btn-ai {
+    background: #fff;
+    color: #111827;
+}
+
 </style>
 </head>
 
@@ -380,6 +427,10 @@ function formatarPreco(valor) {
 }
 
 function obterFoto(anuncio) {
+    if (typeof anuncio.fotos === "string" && anuncio.fotos.trim()) {
+        return anuncio.fotos.trim();
+    }
+
     if (Array.isArray(anuncio.fotos) && anuncio.fotos.length) {
         return anuncio.fotos[0];
     }
@@ -396,31 +447,30 @@ function criarMidia(anuncio) {
     const foto = obterFoto(anuncio);
     const video = anuncio.video || anuncio.video_url || "";
 
-    if (video) {
-        return `
+    return `
+        ${foto ? `
+            <div class="midia midia-imagem">
+                <img src="${foto}" alt="${anuncio.nome || "Produto"}" loading="lazy"
+                     onclick="ampliarImagem(this.src, this.alt)">
+            </div>
+        ` : ""}
+
+        ${video ? `
             <div class="midia">
                 <video controls playsinline preload="metadata">
-                    <source src="${video}">
+                    <source src="${video}" type="video/mp4">
                     Seu navegador não suporta vídeo.
                 </video>
             </div>
-        `;
-    }
+        ` : ""}
 
-    if (foto) {
-        return `
+        ${!foto && !video ? `
             <div class="midia">
-                <img src="${foto}" alt="${anuncio.nome || "Produto"}" loading="lazy">
+                <div style="height:220px;display:flex;align-items:center;justify-content:center;color:var(--muted);">
+                    Sem imagem ou vídeo
+                </div>
             </div>
-        `;
-    }
-
-    return `
-        <div class="midia">
-            <div style="height:220px;display:flex;align-items:center;justify-content:center;color:var(--muted);">
-                Sem imagem
-            </div>
-        </div>
+        ` : ""}
     `;
 }
 
@@ -444,16 +494,177 @@ function criarAnuncio(anuncio) {
                 ${anuncio.pagamento ? `<div class="campo"><strong>Pagamento:</strong> ${anuncio.pagamento}</div>` : ""}
 
                 ${anuncio.descricao ? `<div class="descricao">${anuncio.descricao}</div>` : ""}
+
+                <div class="btn-anuncio-acoes">
+                    <button class="btn-share" onclick="compartilharAnuncioPorId(encodeURIComponent(anuncio.id || ""))">
+                        📤 Compartilhar
+                    </button>
+                    <button class="btn-wa" onclick="abrirWhatsAppPorId(encodeURIComponent(anuncio.id || ""))">
+                        💚 WhatsApp
+                    </button>
+                    <button class="btn-ai" onclick="abrirMetaAIPorId(encodeURIComponent(anuncio.id || ""))">
+                        🤖 Meta AI
+                    </button>
+                </div>
             </div>
         </article>
     `;
 }
+
+
+
+
+function obterAnuncioPorId(id) {
+    const idDecodificado = decodeURIComponent(id || "");
+
+    return anunciosCatalogo.find(
+        anuncio => String(anuncio.id || "") === String(idDecodificado)
+    );
+}
+
+function compartilharAnuncioPorId(id) {
+    const anuncio = obterAnuncioPorId(id);
+    if (anuncio) compartilharAnuncio(anuncio);
+}
+
+function abrirWhatsAppPorId(id) {
+    const anuncio = obterAnuncioPorId(id);
+    if (anuncio) abrirWhatsApp(anuncio);
+}
+
+function abrirMetaAIPorId(id) {
+    const anuncio = obterAnuncioPorId(id);
+    if (anuncio) abrirMetaAI(anuncio);
+}
+
+async function compartilharAnuncio(anuncio) {
+    const produto = anuncio.nome || "Produto";
+    const preco = formatarPreco(anuncio.preco);
+    const codigo = anuncio.codigo || anuncio.id || "";
+    const link = `${window.location.origin}/?id=${encodeURIComponent(anuncio.id || "")}`;
+
+    const dados = {
+        title: produto,
+        text: `Confira este anúncio: ${produto} - ${preco} - Código: ${codigo}`,
+        url: link
+    };
+
+    try {
+        if (navigator.share) {
+            await navigator.share(dados);
+        } else {
+            await navigator.clipboard.writeText(link);
+            alert("Link do anúncio copiado!");
+        }
+    } catch (erro) {
+        if (erro.name === "AbortError") {
+            return;
+        }
+
+        try {
+            await navigator.clipboard.writeText(link);
+            alert("Link do anúncio copiado!");
+        } catch (erroCopia) {
+            window.prompt("Copie o link do anúncio:", link);
+        }
+    }
+}
+
+function normalizarWhatsApp(contato) {
+    if (!contato) return "";
+
+    let numero = String(contato).replace(/\D/g, "");
+
+    if (numero.startsWith("55")) {
+        return numero;
+    }
+
+    if (numero.length >= 10) {
+        return "55" + numero;
+    }
+
+    return numero;
+}
+
+function abrirWhatsApp(anuncio) {
+    const numero = normalizarWhatsApp(anuncio.contato);
+
+    if (!numero) {
+        alert("Este anúncio não possui um contato de WhatsApp.");
+        return;
+    }
+
+    const produto = anuncio.nome || "produto";
+    const preco = formatarPreco(anuncio.preco);
+    const codigo = anuncio.codigo || anuncio.id || "";
+
+    const mensagem =
+        `Olá, tenho interesse no produto ${produto}, ` +
+        `código ${codigo}, no valor de ${preco}.`;
+
+    const url = `https://wa.me/${numero}?text=${encodeURIComponent(mensagem)}`;
+
+    window.open(url, "_blank");
+}
+
+async function abrirMetaAI(anuncio) {
+    const produto = anuncio.nome || "Produto";
+    const preco = formatarPreco(anuncio.preco);
+    const codigo = anuncio.codigo || anuncio.id || "";
+    const descricao = anuncio.descricao || "Não informada";
+    const condicao = anuncio.condicao || "Não informada";
+    const endereco = anuncio.endereco || "Não informado";
+    const taxa = anuncio.taxa || "Não informada";
+    const pagamento = anuncio.pagamento || "Não informado";
+    const vendedor = anuncio.vendedor || "Não informado";
+    const contato = anuncio.contato || "Não informado";
+
+    const link = `${window.location.origin}/?id=${encodeURIComponent(anuncio.id || "")}`;
+
+    const prompt = `PROMPT PADRÃO — ATENDENTE VIRTUAL DE VENDAS
+
+Atue como atendente virtual deste anúncio. Use exclusivamente as informações fornecidas abaixo para auxiliar o cliente durante o processo de compra.
+
+Produto: ${produto}
+Código: ${codigo}
+Preço: ${preco}
+Descrição: ${descricao}
+Condição: ${condicao}
+Vendedor: ${vendedor}
+Contato: ${contato}
+Endereço para retirada: ${endereco}
+Taxa de entrega: ${taxa}
+Forma de pagamento: ${pagamento}
+
+Link personalizado do anúncio:
+${link}
+
+Apresente as principais características e vantagens do produto com clareza. Responda às dúvidas do cliente usando as informações disponíveis, sem inventar características, preços ou condições.
+
+Informe preço, condição, entrega, retirada e pagamento quando essas informações estiverem disponíveis.
+
+Quando o cliente demonstrar interesse, sugira uma mensagem adequada para entrar em contato com o vendedor e finalizar a compra.
+
+Conduza a conversa de maneira natural, cordial e objetiva, ajudando o cliente durante o processo de compra.`;
+
+    try {
+        await navigator.clipboard.writeText(prompt);
+        alert("Prompt copiado! Agora você pode colar no Meta AI.");
+    } catch (erro) {
+        console.error("Não foi possível copiar o prompt:", erro);
+    }
+
+    window.open("https://wa.me/ais/867051314767696?s=5", "_blank");
+}
+
+let anunciosCatalogo = [];
 
 const anunciosRef = ref(database, "nexus_catalogo/anuncios");
 
 onValue(anunciosRef, (snapshot) => {
     const dados = snapshot.val() || {};
     const anuncios = Object.values(dados);
+    anunciosCatalogo = anuncios;
 
     catalogo.innerHTML = "";
 
@@ -463,8 +674,26 @@ onValue(anunciosRef, (snapshot) => {
         return;
     }
 
+    const idSelecionado = new URLSearchParams(window.location.search).get("id");
+
+    if (idSelecionado) {
+        const anuncioSelecionado = anuncios.find(
+            anuncio => String(anuncio.id || "") === String(idSelecionado)
+        );
+
+        if (!anuncioSelecionado) {
+            status.textContent = "Anúncio não encontrado.";
+            catalogo.innerHTML = `<div class="vazio">Este anúncio não está mais disponível.</div>`;
+            return;
+        }
+
+        status.textContent = "Anúncio selecionado";
+        catalogo.innerHTML = criarAnuncio(anuncioSelecionado);
+        return;
+    }
+
     status.textContent =
-        `${anuncios.length} anúncio${anuncios.length === 1 ? "" : "s"} disponível${anuncios.length === 1 ? "" : "is"}`;
+        `${anuncios.length} anúncio${anuncios.length === 1 ? "" : "s"} disponível${anuncios.length === 1 ? "" : "is"}`.replace("disponívelis", "disponíveis");
 
     catalogo.innerHTML = anuncios.map(criarAnuncio).join("");
 }, (erro) => {
@@ -550,6 +779,70 @@ document.getElementById("voltarTopo").addEventListener("click", () => {
     });
 });
 
+</script>
+
+
+<style>
+.visualizador-imagem {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.88);
+}
+
+.visualizador-imagem.ativo {
+    display: flex;
+}
+
+.visualizador-imagem img {
+    max-width: 95vw;
+    max-height: 90vh;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    border-radius: 12px;
+}
+
+.fechar-imagem {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    z-index: 10000;
+    width: 44px;
+    height: 44px;
+    border: 0;
+    border-radius: 50%;
+    font-size: 24px;
+    cursor: pointer;
+}
+</style>
+
+<div id="visualizadorImagem" class="visualizador-imagem" onclick="fecharImagem()">
+    <button class="fechar-imagem" onclick="event.stopPropagation(); fecharImagem()">✕</button>
+    <img id="imagemAmpliada" src="" alt="" onclick="event.stopPropagation()">
+</div>
+
+<script>
+function ampliarImagem(src, alt) {
+    const visualizador = document.getElementById("visualizadorImagem");
+    const imagem = document.getElementById("imagemAmpliada");
+
+    imagem.src = src;
+    imagem.alt = alt || "Imagem ampliada";
+    visualizador.classList.add("ativo");
+    document.body.style.overflow = "hidden";
+}
+
+function fecharImagem() {
+    const visualizador = document.getElementById("visualizadorImagem");
+
+    visualizador.classList.remove("ativo");
+    document.body.style.overflow = "";
+}
 </script>
 
 </body>
