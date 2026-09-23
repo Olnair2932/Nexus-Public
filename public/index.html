@@ -372,6 +372,7 @@ body.dark .btn-ai {
             <button class="acao" id="btnTema" title="Modo claro/escuro">🌙</button>
             <button class="acao" id="btnGrade" title="Modo grade">▦</button>
             <button class="acao" id="btnLista" title="Modo lista">☰</button>
+            <button class="acao" id="btnTermos" title="Termos, Privacidade e Desenvolvimento">🔏</button>
         </div>
     </div>
 </header>
@@ -740,6 +741,10 @@ document.getElementById("btnTema").addEventListener("click", () => {
 document.getElementById("btnGrade").addEventListener("click", () => {
     catalogo.classList.remove("lista");
     localStorage.setItem("nexus-layout", "grade");
+});
+
+document.getElementById("btnTermos").addEventListener("click", () => {
+    window.open("./termos.html", "_blank");
 });
 
 document.getElementById("btnLista").addEventListener("click", () => {
